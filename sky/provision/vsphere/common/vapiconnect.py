@@ -89,6 +89,6 @@ def create_unverified_session(session, suppress_warning=True):
     session.verify = False
     if suppress_warning:
         # Suppress unverified https request warnings
-        requests.packages.urllib3.disable_warnings(  # type: ignore
+        requests.packages.urllib3.disable_warnings(
             InsecureRequestWarning)
     return session

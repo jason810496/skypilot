@@ -417,7 +417,7 @@ class SeewebNodeProvider:
 
         # Build the request object expected by ecsapi
         server_create_request_cls = (
-            seeweb_adaptor.ecsapi.ServerCreateRequest  # type: ignore
+            seeweb_adaptor.ecsapi.ServerCreateRequest
         )
         create_request = server_create_request_cls(**payload)
 

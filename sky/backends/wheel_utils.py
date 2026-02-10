@@ -54,7 +54,10 @@ def _remove_stale_wheels(latest_wheel_dir: pathlib.Path) -> None:
 def _get_latest_wheel() -> pathlib.Path:
     wheel_name = f'**/{_WHEEL_PATTERN}'
     try:
-        latest_wheel = max(WHEEL_DIR.glob(wheel_name), key=os.path.getctime)
+        wheels = list(WHEEL_DIR.glob(wheel_name))
+        if not wheels:
+            raise ValueError('empty sequence')
+        latest_wheel = max(wheels, key=os.path.getctime)
     except ValueError:
         raise FileNotFoundError(
             'Could not find built SkyPilot wheels with glob pattern '
