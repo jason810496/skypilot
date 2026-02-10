@@ -125,14 +125,9 @@ isort sky tests examples llm docs "${ISORT_YAPF_EXCLUDES[@]}"
 isort --profile black -l 88 -m 3 "sky/skylet/providers/ibm"
 
 
-# Run ty
+# Run ty, will use the pyproject.toml configuration automatically.
 echo 'SkyPilot ty:'
-ty check sky examples/admin_policy/example_policy \
-    --exclude 'sky/backends/monkey_patches/**' \
-    --exclude 'examples/admin_policy/example_policy/build/**' \
-    --exclude 'sky/skylet/providers/ibm/**' \
-    --exclude 'sky/schemas/generated/**' \
-    --ignore unresolved-import
+ty check
 
 # Run Pylint
 echo 'Sky Pylint:'

@@ -37,9 +37,4 @@ jobs:
     - name: Running ty
       run: |
         source ~/test-env/bin/activate
-        ty check sky examples/admin_policy/example_policy \
-            --exclude 'sky/backends/monkey_patches/**' \
-            --exclude 'examples/admin_policy/example_policy/build/**' \
-            --exclude 'sky/skylet/providers/ibm/**' \
-            --exclude 'sky/schemas/generated/**' \
-            --ignore unresolved-import
+        ty check --config-file pyproject.toml
