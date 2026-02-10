@@ -1,4 +1,4 @@
-name: mypy
+name: ty
 
 on:
   # Trigger the workflow on push or pull request,
@@ -14,7 +14,7 @@ on:
   merge_group:
 
 jobs:
-  mypy:
+  ty:
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -30,9 +30,13 @@ jobs:
       run: |
         uv venv --seed ~/test-env
         source ~/test-env/bin/activate
-        uv pip install mypy==$(grep mypy requirements-dev.txt | cut -d'=' -f3)
-        uv pip install $(grep types- requirements-dev.txt | tr '\n' ' ')
-    - name: Running mypy
+        uv pip install ty==$(grep "ty==" requirements-dev.txt | cut -d'=' -f3)
+    - name: Running ty
       run: |
         source ~/test-env/bin/activate
-        mypy $(cat tests/mypy_files.txt)
+        ty check sky examples/admin_policy/example_policy \
+            --exclude 'sky/backends/monkey_patches/**' \
+            --exclude 'examples/admin_policy/example_policy/build/**' \
+            --exclude 'sky/skylet/providers/ibm/**' \
+            --exclude 'sky/schemas/generated/**' \
+            --ignore unresolved-import
