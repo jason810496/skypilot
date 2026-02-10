@@ -34,7 +34,8 @@ jobs:
         uv venv --seed ~/test-env
         source ~/test-env/bin/activate
         uv pip install ty==$(grep "ty==" requirements-dev.txt | cut -d'=' -f3)
+        uv pip install $(grep "types-" requirements-dev.txt | cut -d'=' -f1)
     - name: Running ty
       run: |
         source ~/test-env/bin/activate
-        ty check --config-file pyproject.toml
+        ty check
