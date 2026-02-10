@@ -32,25 +32,6 @@ repos:
           - "-m=3"
         files: "^sky/skylet/providers/ibm/.*"  # Only match IBM-specific directory
 
--   repo: https://github.com/astral-sh/ty-pre-commit
-    rev: 0.0.15  # Match the version from requirements
-    hooks:
-    -   id: ty-check
-        args:
-            - "sky"
-            - "examples/admin_policy/example_policy"
-            - "--exclude"
-            - "sky/backends/monkey_patches/**"
-            - "--exclude"
-            - "examples/admin_policy/example_policy/build/**"
-            - "--exclude"
-            - "sky/skylet/providers/ibm/**"
-            - "--exclude"
-            - "sky/schemas/generated/**"
-            - "--ignore"
-            - "unresolved-import"
-        pass_filenames: false
-
 -   repo: https://github.com/google/yapf
     rev: v0.32.0  # Match the version from requirements
     hooks:
@@ -96,3 +77,25 @@ repos:
         language_version: 24.12.0
         files: ^sky/dashboard/
         pass_filenames: false
+
+    # ty doesn't support pre-commit out of the box right now
+    # https://github.com/astral-sh/ty/issues/269
+    -   id: ty
+        name: ty check (mypy alternative)
+        entry: ty check
+        pass_filenames: false
+        # only install ty and `types-` dependencies from requirements-dev.txt
+        # We should separate ty dependencies as group in pyproject.toml in the future
+        additional_dependencies:
+            - ty==0.0.15
+            # types packages for type checking
+            - types-PyYAML
+            - types-paramiko
+            - types-requests<2.31
+            - types-setuptools<80.9
+            - types-cachetools
+            - types-pyvmomi
+            - types-aiofiles
+            - types-protobuf
+            - types-python-dateutil
+        language: python
