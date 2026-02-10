@@ -863,7 +863,6 @@ def _make_task_or_dag_from_entrypoint_with_overrides(
 
     is_yaml, _ = _check_yaml(entrypoint)
 
-    entrypoint: Optional[str]
     if is_yaml:
         # Treat entrypoint as a yaml.
         click.secho('YAML to run: ', fg='cyan', nl=False)

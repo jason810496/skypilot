@@ -1178,7 +1178,7 @@ class JobController:
             for task_id, task in enumerate(tasks):
                 if is_terminal(task_id):
                     cluster_names.append(None)
-                    strategy_executors.append(None)  # type: ignore[arg-type]
+                    strategy_executors.append(None)
                     continue
 
                 # Get list of other job names (excluding current task)

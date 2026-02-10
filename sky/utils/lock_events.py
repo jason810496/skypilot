@@ -30,7 +30,7 @@ class DistributedLockEvent:
     def release(self):
         was_locked = self._lock.is_locked  # type: ignore[truthy-function]
         self._lock.release()
-        if was_locked and not self._lock.is_locked:  # type: ignore[truthy-function]  # pylint: disable=line-too-long
+        if was_locked and not self._lock.is_locked:
             # stop holding the lock after initial releasing
             self._hold_lock_event.end()
 
