@@ -13,6 +13,9 @@ on:
       - 'releases/**'
   merge_group:
 
+permissions:
+  contents: read
+
 jobs:
   ty:
     runs-on: ubuntu-latest
