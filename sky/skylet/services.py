@@ -595,8 +595,7 @@ class ManagedJobsServiceImpl(managed_jobsv1_pb2_grpc.ManagedJobsServiceServicer
 
     def StreamLogs(
             self,
-            request: managed_jobsv1_pb2.
-        StreamLogsRequest,  # type: ignore[return]
+            request: managed_jobsv1_pb2.StreamLogsRequest,
             context: grpc.ServicerContext):
         # TODO(kevin): implement this
         context.abort(grpc.StatusCode.UNIMPLEMENTED,
