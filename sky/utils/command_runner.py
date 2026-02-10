@@ -1311,9 +1311,9 @@ class SSHCommandRunner(CommandRunner):
                 return result  # type: ignore[return-value]
 
             if require_outputs:
-                returncode, _, _ = result  # type: ignore[misc]
+                returncode, _, _ = result
             else:
-                returncode = result  # type: ignore[assignment]
+                returncode = result
 
             if returncode != 255:
                 return result  # type: ignore[return-value]
@@ -1337,7 +1337,7 @@ class SSHCommandRunner(CommandRunner):
             if not has_auth_failure:
                 # No auth failure detected; don't attempt interactive auth.
                 if require_outputs:
-                    returncode, stdout, stderr = result  # type: ignore[misc]
+                    returncode, stdout, stderr = result
                     return returncode, stdout, stderr + '\n' + ssh_log_content
                 return result  # type: ignore[return-value]
 
