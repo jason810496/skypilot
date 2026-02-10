@@ -430,10 +430,12 @@ class CommandRunner:
         backoff = common_utils.Backoff(initial_backoff=1, max_backoff_factor=5)
         retries_left = max_retry
         assert retries_left > 0, f'max_retry {max_retry} must be positive.'
+        last_error: Optional[Exception] = None
         while retries_left >= 0:
             try:
                 return get_remote_home_dir()
-            except Exception:  # pylint: disable=broad-except
+            except Exception as e:  # pylint: disable=broad-except
+                last_error = e
                 if retries_left == 0:
                     raise
                 sleep_time = backoff.current_backoff()
@@ -441,8 +443,9 @@ class CommandRunner:
                                f'- retrying in {sleep_time} seconds.')
                 retries_left -= 1
                 time.sleep(sleep_time)
-        # This should be unreachable as retries_left == 0 raises above
-        raise AssertionError('Unreachable: retries exhausted without raising')
+        # This should be unreachable, but satisfy the type checker
+        assert last_error is not None
+        raise last_error
 
     def _rsync(
             self,
