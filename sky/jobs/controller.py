@@ -316,7 +316,8 @@ class JobController:
                                 request))
 
                     return list(
-                        response.exit_codes) if response.exit_codes else None
+                        response.exit_codes  # type: ignore[attr-defined]
+                    ) if response.exit_codes else None  # type: ignore[attr-defined]
                 except exceptions.SkyletMethodNotImplementedError:
                     pass  # Fall back to legacy SSH-based method
 

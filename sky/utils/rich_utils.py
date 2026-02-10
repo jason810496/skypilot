@@ -265,7 +265,7 @@ def safe_logger():
 
         client_status_live = (client_status_obj is not None and
                               hasattr(client_status_obj, '_live') and
-                              client_status_obj._live.is_started)  # pylint: disable=protected-access
+                              getattr(client_status_obj._live, 'is_started', False))  # pylint: disable=protected-access
         if client_status_live and client_status_obj is not None:
             client_status_obj.stop()
         yield

@@ -303,7 +303,8 @@ class ContextualEnviron(MutableMapping[str, str]):
                     copied[key] = ctx.env_overrides[key]
         return copied
 
-    def setdefault(self, key: str, default: str) -> str:
+    def setdefault(  # type: ignore[override]
+            self, key: str, default: str) -> str:
         return self._environ.setdefault(key, default)
 
     def __ior__(self, other):

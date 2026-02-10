@@ -441,6 +441,8 @@ class CommandRunner:
                                f'- retrying in {sleep_time} seconds.')
                 retries_left -= 1
                 time.sleep(sleep_time)
+        # This should be unreachable as retries_left == 0 raises above
+        raise AssertionError('Unreachable: retries exhausted without raising')
 
     def _rsync(
             self,
@@ -1303,15 +1305,15 @@ class SSHCommandRunner(CommandRunner):
                                           executable=executable,
                                           **kwargs)
             if not self.enable_interactive_auth:
-                return result
+                return result  # type: ignore[return-value]
 
             if require_outputs:
-                returncode, _, _ = result
+                returncode, _, _ = result  # type: ignore[misc]
             else:
-                returncode = result
+                returncode = result  # type: ignore[assignment]
 
             if returncode != 255:
-                return result
+                return result  # type: ignore[return-value]
 
             # Check SSH verbose log file for auth failure patterns.
             # This is more reliable than checking stderr, which may be empty
@@ -1332,16 +1334,17 @@ class SSHCommandRunner(CommandRunner):
             if not has_auth_failure:
                 # No auth failure detected; don't attempt interactive auth.
                 if require_outputs:
-                    returncode, stdout, stderr = result
+                    returncode, stdout, stderr = result  # type: ignore[misc]
                     return returncode, stdout, stderr + '\n' + ssh_log_content
-                return result
+                return result  # type: ignore[return-value]
 
             session_id = str(uuid.uuid4())
-            return self._retry_with_interactive_auth(session_id, command,
-                                                     log_path, require_outputs,
-                                                     process_stream,
-                                                     stream_logs, executable,
-                                                     **kwargs)
+            return self._retry_with_interactive_auth(  # type: ignore[return-value]
+                session_id, command,
+                log_path, require_outputs,
+                process_stream,
+                stream_logs, executable,
+                **kwargs)
         finally:
             # Clean up the SSH verbose log file.
             if ssh_log_file is not None:
@@ -1608,14 +1611,15 @@ class KubernetesCommandRunner(CommandRunner):
             else:
                 command += [f'> {log_path}']
             executable = '/bin/bash'
-        return log_lib.run_with_log(' '.join(command),
-                                    log_path,
-                                    require_outputs=require_outputs,
-                                    stream_logs=stream_logs,
-                                    process_stream=process_stream,
-                                    shell=True,
-                                    executable=executable,
-                                    **kwargs)
+        return log_lib.run_with_log(  # type: ignore[return-value]
+            ' '.join(command),
+            log_path,
+            require_outputs=require_outputs,
+            stream_logs=stream_logs,
+            process_stream=process_stream,
+            shell=True,
+            executable=executable,
+            **kwargs)
 
     @timeline.event
     def rsync(
@@ -1737,14 +1741,15 @@ class LocalProcessCommandRunner(CommandRunner):
         command_str = command_str.replace(constants.SKY_PYTHON_CMD,
                                           sys.executable)
         logger.debug(f'Running command locally: {command_str}')
-        return log_lib.run_with_log(command_str,
-                                    log_path,
-                                    require_outputs=require_outputs,
-                                    stream_logs=stream_logs,
-                                    process_stream=process_stream,
-                                    shell=True,
-                                    executable=executable,
-                                    **kwargs)
+        return log_lib.run_with_log(  # type: ignore[return-value]
+            command_str,
+            log_path,
+            require_outputs=require_outputs,
+            stream_logs=stream_logs,
+            process_stream=process_stream,
+            shell=True,
+            executable=executable,
+            **kwargs)
 
     @timeline.event
     def rsync(
@@ -1896,8 +1901,7 @@ exec {ssh_command} srun --unbuffered --quiet --overlap {extra_srun_args}\\
                 os.unlink(rsh_script_path)
             except OSError as e:
                 logger.warning('Failed to remove temporary rsh script '
-                               f'{rsh_script_path}: '
-                               f'{common_utils.exception_to_string(e)}')
+                               f'{rsh_script_path}: {e}')
 
     def _run_via_srun(
         self,
