@@ -487,8 +487,7 @@ def _usable_subnets(
         azs_list = [az.strip() for az in azs.split(',')]
         # Iterate over AZs first to maintain the ordering
         subnets = [
-            s for az in azs_list
-            for s in subnets if s.availability_zone == az
+            s for az in azs_list for s in subnets if s.availability_zone == az
         ]
         if not subnets:
             _skypilot_log_error_and_exit_for_failover(

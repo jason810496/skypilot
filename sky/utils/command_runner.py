@@ -1343,11 +1343,8 @@ class SSHCommandRunner(CommandRunner):
 
             session_id = str(uuid.uuid4())
             return self._retry_with_interactive_auth(  # type: ignore
-                session_id, command,
-                log_path, require_outputs,
-                process_stream,
-                stream_logs, executable,
-                **kwargs)
+                session_id, command, log_path, require_outputs, process_stream,
+                stream_logs, executable, **kwargs)
         finally:
             # Clean up the SSH verbose log file.
             if ssh_log_file is not None:

@@ -120,8 +120,7 @@ def client():
     orig_fetch_servers = api.fetch_servers
     orig_delete_server = api.delete_server
 
-    def _tolerant_fetch_servers(
-            timeout: Optional[int] = None):
+    def _tolerant_fetch_servers(timeout: Optional[int] = None):
         try:
             return orig_fetch_servers(timeout=timeout)
         except pydantic.ValidationError:
