@@ -11,8 +11,8 @@ from typing import Dict, List
 clouds_with_ray = ['ibm', 'docker', 'scp']
 
 install_requires = [
-    'wheel<0.46.0',  # https://github.com/skypilot-org/skypilot/issues/5153
-    'setuptools',  # TODO: match version to pyproject.toml once #5153 is fixed
+    'wheel>=0.46.2',
+    'setuptools',
     'pip',
     'cachetools',
     # NOTE: ray requires click>=7.0.
@@ -21,7 +21,7 @@ install_requires = [
     # TODO(aylei): remove this once the bug is fixed in click.
     'click >= 7.0, < 8.2.0',
     'colorama',
-    'cryptography',
+    'cryptography>=46.0.5',
     # Jinja has a bug in older versions because of the lack of pinning
     # the version of the underlying markupsafe package. See:
     # https://github.com/pallets/jinja/issues/1585
@@ -92,7 +92,7 @@ install_requires = [
     'paramiko',
     'types-paramiko',
     'alembic>=1.8.0',
-    'aiohttp',
+    'aiohttp>=3.13.3',
     'anyio',
 ]
 
@@ -118,7 +118,7 @@ server_dependencies = [
     'sqlalchemy_adapter',
     'passlib',
     'pyjwt',
-    'aiohttp',
+    'aiohttp>=3.13.3',
     'anyio',
     GRPC,
     PROTOBUF,
