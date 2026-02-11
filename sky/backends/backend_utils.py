@@ -3178,7 +3178,7 @@ def is_controller_accessible(
         # status of the controller.
         controller_status, handle = refresh_cluster_status_handle(
             cluster_name,
-            force_refresh_statuses=[status_lib.ClusterStatus.INIT],
+            force_refresh_statuses={status_lib.ClusterStatus.INIT},
             cluster_status_lock_timeout=0)
     except exceptions.ClusterStatusFetchingError as e:
         # We do not catch the exceptions related to the cluster owner identity
@@ -3218,6 +3218,7 @@ def is_controller_accessible(
                                                    handle.docker_user,
                                                    handle.ssh_user)
 
+        assert handle.head_ssh_port is not None
         runner = command_runner.SSHCommandRunner(node=(handle.head_ip,
                                                        handle.head_ssh_port),
                                                  **ssh_credentials)
@@ -3238,6 +3239,7 @@ def is_controller_accessible(
                                                handle=handle)
     assert handle is not None and handle.head_ip is not None, (
         handle, controller_status)
+    assert isinstance(handle, backends.CloudVmRayResourceHandle)
     return handle
 
 

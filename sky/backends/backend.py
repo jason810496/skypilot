@@ -23,6 +23,23 @@ _ResourceHandleType = typing.TypeVar('_ResourceHandleType',
 # Examples: 'cluster.yaml'; 'ray://...', 'k8s://...'.
 class ResourceHandle:
 
+    cluster_yaml: Optional[str]
+    launched_nodes: int
+    launched_resources: 'resources.Resources'
+    docker_user: Optional[str]
+
+    @property
+    def head_ip(self) -> Optional[str]:
+        raise NotImplementedError
+
+    @property
+    def head_ssh_port(self) -> Optional[int]:
+        raise NotImplementedError
+
+    @property
+    def ssh_user(self) -> Optional[str]:
+        raise NotImplementedError
+
     def get_cluster_name(self) -> str:
         raise NotImplementedError
 

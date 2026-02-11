@@ -539,6 +539,7 @@ def _start(
             f'Cluster {cluster_name!r} does not exist.')
     if not force and cluster_status == status_lib.ClusterStatus.UP:
         sky_logging.print(f'Cluster {cluster_name!r} is already up.')
+        assert isinstance(handle, backends.CloudVmRayResourceHandle)
         return handle
     assert force or cluster_status in (
         status_lib.ClusterStatus.INIT,
