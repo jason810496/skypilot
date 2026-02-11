@@ -654,7 +654,7 @@ def write_cluster_config(
     keep_launch_fields_in_existing_config: bool = True,
     volume_mounts: Optional[List['volume_utils.VolumeMount']] = None,
     cloud_specific_failover_overrides: Optional[Dict[str, Any]] = None,
-) -> Dict[str, Any]:
+) -> Dict[str, str]:
     """Fills in cluster configuration templates and writes them out.
 
     Returns:
@@ -3089,12 +3089,7 @@ def check_cluster_available(
                 cluster_status=cluster_status,
                 handle=handle)
 
-    # At this point, handle is verified to be CloudVmRayResourceHandle
-    # (via check_cloud_vm_ray_backend above or by the fact that all current
-    # backends use CloudVmRayResourceHandle).
-    _handle = typing.cast('cloud_vm_ray_backend.CloudVmRayResourceHandle',
-                          handle)
-    if _handle.head_ip is None:
+    if handle.head_ip is None:
         with ux_utils.print_exception_no_traceback():
             raise exceptions.ClusterNotUpError(
                 f'Cluster {cluster_name!r} has been stopped or not properly '
@@ -3207,7 +3202,7 @@ def is_controller_accessible(
     error_msg = None
     if controller_status == status_lib.ClusterStatus.STOPPED:
         error_msg = stopped_message
-    elif controller_status is None or handle is None or handle.head_ip is None:  # type: ignore[attr-defined]
+    elif controller_status is None or handle is None or handle.head_ip is None:
         # We check the controller is STOPPED before the check for handle.head_ip
         # None because when the controller is STOPPED, handle.head_ip can also
         # be None, but we only want to catch the case when the controller is
@@ -3219,12 +3214,13 @@ def is_controller_accessible(
         # status, both of which can happen when controller's status lock is held by another `sky jobs launch` or
         # `sky serve up`. If we have controller's head_ip available and it is ssh-reachable,
         # we can allow access to the controller.
-        ssh_credentials = ssh_credential_from_yaml(handle.cluster_yaml,  # type: ignore[attr-defined]
-                                                   handle.docker_user,  # type: ignore[attr-defined]
-                                                   handle.ssh_user)  # type: ignore[attr-defined]
+        ssh_credentials = ssh_credential_from_yaml(handle.cluster_yaml,
+                                                   handle.docker_user,
+                                                   handle.ssh_user)
 
-        runner = command_runner.SSHCommandRunner(node=(handle.head_ip,  # type: ignore[attr-defined]
-                                                       handle.head_ssh_port),  # type: ignore[attr-defined]
+        assert handle.head_ssh_port is not None
+        runner = command_runner.SSHCommandRunner(node=(handle.head_ip,
+                                                       handle.head_ssh_port),
                                                  **ssh_credentials)
         if not runner.check_connection():
             error_msg = controller.value.connection_error_hint
@@ -3241,9 +3237,10 @@ def is_controller_accessible(
             raise exceptions.ClusterNotUpError(error_msg,
                                                cluster_status=controller_status,
                                                handle=handle)
-    assert handle is not None and handle.head_ip is not None, (  # type: ignore[attr-defined]
+    assert handle is not None and handle.head_ip is not None, (
         handle, controller_status)
-    return handle  # type: ignore[return-value]
+    assert isinstance(handle, backends.CloudVmRayResourceHandle)
+    return handle
 
 
 class CloudFilter(enum.Enum):

@@ -1053,20 +1053,21 @@ class RetryingVmProvisioner(object):
             for failover_overrides in to_provision.cloud.yield_cloud_specific_failover_overrides(
                     region=to_provision.region):
                 try:
-                    config_dict = backend_utils.write_cluster_config(
-                        to_provision,
-                        num_nodes,
-                        _get_cluster_config_template(to_provision.cloud),
-                        cluster_name,
-                        self._local_wheel_path,
-                        self._wheel_hash,
-                        region=region,
-                        zones=zones,
-                        dryrun=dryrun,
-                        keep_launch_fields_in_existing_config=cluster_exists,
-                        volume_mounts=volume_mounts,
-                        cloud_specific_failover_overrides=failover_overrides,
-                    )
+                    config_dict: Dict[str, Any] = (
+                        backend_utils.write_cluster_config(
+                            to_provision,
+                            num_nodes,
+                            _get_cluster_config_template(to_provision.cloud),
+                            cluster_name,
+                            self._local_wheel_path,
+                            self._wheel_hash,
+                            region=region,
+                            zones=zones,
+                            dryrun=dryrun,
+                            keep_launch_fields_in_existing_config=cluster_exists,
+                            volume_mounts=volume_mounts,
+                            cloud_specific_failover_overrides=failover_overrides,
+                        ))
                 except exceptions.ResourcesUnavailableError as e:
                     # Failed due to catalog issue, e.g. image not found, or
                     # GPUs are requested in a Kubernetes cluster but the cluster
