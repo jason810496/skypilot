@@ -530,7 +530,9 @@ def _execute_dag(
                 job_id = backend.execute(handle, task, dryrun=dryrun)
             finally:
                 # Enables post_execute() to be run after KeyboardInterrupt.
-                backend.post_execute(handle, down)
+                backend.post_execute(
+                    typing.cast(backends.CloudVmRayResourceHandle, handle),
+                    down)
 
         if Stage.DOWN in stages and not dryrun:
             if down and idle_minutes_to_autostop is None:
