@@ -36,6 +36,13 @@ class TestExtractClusterFromRsyncArgs:
             'my-cluster:/home/user/data', './')
         assert result == 'my-cluster'
 
+    def test_local_path_with_colon_ignored(self):
+        """Paths with slashes before the colon should not be treated as
+        cluster prefixes."""
+        result = command._extract_cluster_from_rsync_args(
+            '/path/with:colon/file', './')
+        assert result is None
+
 
 class TestRsyncCommand:
     """Tests for the sky rsync CLI command."""

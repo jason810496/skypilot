@@ -2711,11 +2711,25 @@ def _extract_cluster_from_rsync_args(
     a colon-separated cluster prefix (e.g., 'my-cluster:~/file'), or None
     if neither does (pure local rsync).
 
+    A prefix is only treated as a cluster name if it does not contain path
+    separators (``/`` or ``\\``), so that local paths with colons (e.g.
+    ``/path/with:colon``) are not misinterpreted.
+
     Raises click.UsageError if both source and destination contain a cluster
     prefix (remote-to-remote is not supported).
     """
-    src_cluster = source.split(':')[0] if ':' in source else None
-    dst_cluster = destination.split(':')[0] if ':' in destination else None
+
+    def _get_cluster(arg: str) -> Optional[str]:
+        if ':' not in arg:
+            return None
+        prefix = arg.split(':')[0]
+        # A cluster name never contains path separators.
+        if '/' in prefix or '\\' in prefix:
+            return None
+        return prefix
+
+    src_cluster = _get_cluster(source)
+    dst_cluster = _get_cluster(destination)
     if src_cluster and dst_cluster:
         raise click.UsageError(
             'Both source and destination contain a cluster prefix. '
