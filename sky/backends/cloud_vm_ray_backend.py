@@ -18,8 +18,8 @@ import textwrap
 import threading
 import time
 import typing
-from typing import (Any, Callable, Dict, Iterable, Iterator, List, Optional,
-                    Set, Tuple, Union)
+from typing import (Any, Callable, Dict, Iterable, Iterator, List, Literal,
+                    Optional, Set, Tuple, Union)
 
 import colorama
 import psutil
@@ -2050,6 +2050,7 @@ class CloudVmRayResourceHandle(backends.backend.ResourceHandle):
             # For clouds that do not support the SkyPilot Provisioner API.
             # TODO(zhwu): once all the clouds are migrated to SkyPilot
             # Provisioner API, we should remove this else block
+            assert self.cluster_yaml is not None
             def is_provided_ips_valid(
                     ips: Optional[List[Optional[str]]]) -> bool:
                 return (ips is not None and len(ips)
@@ -3384,7 +3385,7 @@ class CloudVmRayBackend(backends.Backend['CloudVmRayResourceHandle']):
             prev_handle: Optional[CloudVmRayResourceHandle],
             task: task_lib.Task,
             prev_cluster_status: Optional[status_lib.ClusterStatus],
-            config_hash: str) -> None:
+            config_hash: Optional[str]) -> None:
         usage_lib.messages.usage.update_cluster_resources(
             handle.launched_nodes, handle.launched_resources)
         usage_lib.messages.usage.update_final_cluster_status(
@@ -4563,7 +4564,7 @@ class CloudVmRayBackend(backends.Backend['CloudVmRayResourceHandle']):
                 ssh_mode=command_runner.SshMode.INTERACTIVE,
             )
         except SystemExit as e:
-            final = e.code
+            final = e.code  # type: ignore[assignment]
         return final
 
     def tail_autostop_logs(self,
@@ -4611,7 +4612,7 @@ class CloudVmRayBackend(backends.Backend['CloudVmRayResourceHandle']):
                 ssh_mode=command_runner.SshMode.INTERACTIVE,
             )
         except SystemExit as e:
-            returncode = e.code
+            returncode = e.code  # type: ignore[assignment]
         return returncode
 
     def tail_managed_job_logs(self,
@@ -4644,7 +4645,7 @@ class CloudVmRayBackend(backends.Backend['CloudVmRayResourceHandle']):
                 ssh_mode=command_runner.SshMode.INTERACTIVE,
             )
         except SystemExit as e:
-            returncode = e.code
+            returncode = e.code  # type: ignore[assignment]
         return returncode
 
     def sync_down_managed_job_logs(
@@ -5445,6 +5446,63 @@ class CloudVmRayBackend(backends.Backend['CloudVmRayResourceHandle']):
 
     # TODO(zhwu): Refactor this to a CommandRunner class, so different backends
     # can support its own command runner.
+    @typing.overload
+    def run_on_head(
+        self,
+        handle: CloudVmRayResourceHandle,
+        cmd: str,
+        *,
+        port_forward: Optional[List[int]] = ...,
+        log_path: str = ...,
+        stream_logs: bool = ...,
+        ssh_mode: command_runner.SshMode = ...,
+        under_remote_workdir: bool = ...,
+        require_outputs: Literal[False] = ...,
+        separate_stderr: bool = ...,
+        process_stream: bool = ...,
+        source_bashrc: bool = ...,
+        **kwargs,
+    ) -> int:
+        ...
+
+    @typing.overload
+    def run_on_head(
+        self,
+        handle: CloudVmRayResourceHandle,
+        cmd: str,
+        *,
+        port_forward: Optional[List[int]] = ...,
+        log_path: str = ...,
+        stream_logs: bool = ...,
+        ssh_mode: command_runner.SshMode = ...,
+        under_remote_workdir: bool = ...,
+        require_outputs: Literal[True],
+        separate_stderr: bool = ...,
+        process_stream: bool = ...,
+        source_bashrc: bool = ...,
+        **kwargs,
+    ) -> Tuple[int, str, str]:
+        ...
+
+    @typing.overload
+    def run_on_head(
+        self,
+        handle: CloudVmRayResourceHandle,
+        cmd: str,
+        *,
+        port_forward: Optional[List[int]] = ...,
+        log_path: str = ...,
+        stream_logs: bool = ...,
+        ssh_mode: command_runner.SshMode = ...,
+        under_remote_workdir: bool = ...,
+        require_outputs: bool = ...,
+        separate_stderr: bool = ...,
+        process_stream: bool = ...,
+        source_bashrc: bool = ...,
+        **kwargs,
+    ) -> Union[int, Tuple[int, str, str]]:
+        ...
+
     @timeline.event
     @context_utils.cancellation_guard
     def run_on_head(

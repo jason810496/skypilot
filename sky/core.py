@@ -539,7 +539,7 @@ def _start(
             f'Cluster {cluster_name!r} does not exist.')
     if not force and cluster_status == status_lib.ClusterStatus.UP:
         sky_logging.print(f'Cluster {cluster_name!r} is already up.')
-        return handle
+        return handle  # type: ignore[return-value]
     assert force or cluster_status in (
         status_lib.ClusterStatus.INIT,
         status_lib.ClusterStatus.STOPPED), cluster_status
@@ -613,10 +613,10 @@ def _start(
     usage_lib.record_cluster_name_for_current_operation(cluster_name)
 
     with dag_lib.Dag():
-        dummy_task = task_lib.Task().set_resources(handle.launched_resources)
-        dummy_task.num_nodes = handle.launched_nodes
+        dummy_task = task_lib.Task().set_resources(handle.launched_resources)  # type: ignore[union-attr]
+        dummy_task.num_nodes = handle.launched_nodes  # type: ignore[union-attr]
     (handle, _) = backend.provision(dummy_task,
-                                    to_provision=handle.launched_resources,
+                                    to_provision=handle.launched_resources,  # type: ignore[union-attr]
                                     dryrun=False,
                                     stream_logs=True,
                                     cluster_name=cluster_name,
