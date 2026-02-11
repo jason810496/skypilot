@@ -3207,7 +3207,7 @@ def is_controller_accessible(
     error_msg = None
     if controller_status == status_lib.ClusterStatus.STOPPED:
         error_msg = stopped_message
-    elif controller_status is None or handle is None or handle.head_ip is None:  # type: ignore[union-attr]
+    elif controller_status is None or handle is None or handle.head_ip is None:  # type: ignore[attr-defined]
         # We check the controller is STOPPED before the check for handle.head_ip
         # None because when the controller is STOPPED, handle.head_ip can also
         # be None, but we only want to catch the case when the controller is
@@ -3219,12 +3219,12 @@ def is_controller_accessible(
         # status, both of which can happen when controller's status lock is held by another `sky jobs launch` or
         # `sky serve up`. If we have controller's head_ip available and it is ssh-reachable,
         # we can allow access to the controller.
-        ssh_credentials = ssh_credential_from_yaml(handle.cluster_yaml,  # type: ignore[union-attr]
-                                                   handle.docker_user,  # type: ignore[union-attr]
-                                                   handle.ssh_user)  # type: ignore[union-attr]
+        ssh_credentials = ssh_credential_from_yaml(handle.cluster_yaml,  # type: ignore[attr-defined]
+                                                   handle.docker_user,  # type: ignore[attr-defined]
+                                                   handle.ssh_user)  # type: ignore[attr-defined]
 
-        runner = command_runner.SSHCommandRunner(node=(handle.head_ip,  # type: ignore[union-attr]
-                                                       handle.head_ssh_port),  # type: ignore[union-attr]
+        runner = command_runner.SSHCommandRunner(node=(handle.head_ip,  # type: ignore[attr-defined]
+                                                       handle.head_ssh_port),  # type: ignore[attr-defined]
                                                  **ssh_credentials)
         if not runner.check_connection():
             error_msg = controller.value.connection_error_hint
@@ -3241,7 +3241,7 @@ def is_controller_accessible(
             raise exceptions.ClusterNotUpError(error_msg,
                                                cluster_status=controller_status,
                                                handle=handle)
-    assert handle is not None and handle.head_ip is not None, (  # type: ignore[union-attr]
+    assert handle is not None and handle.head_ip is not None, (  # type: ignore[attr-defined]
         handle, controller_status)
     return handle  # type: ignore[return-value]
 

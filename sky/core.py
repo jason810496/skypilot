@@ -613,10 +613,10 @@ def _start(
     usage_lib.record_cluster_name_for_current_operation(cluster_name)
 
     with dag_lib.Dag():
-        dummy_task = task_lib.Task().set_resources(handle.launched_resources)  # type: ignore[union-attr]
-        dummy_task.num_nodes = handle.launched_nodes  # type: ignore[union-attr]
+        dummy_task = task_lib.Task().set_resources(handle.launched_resources)  # type: ignore[attr-defined]
+        dummy_task.num_nodes = handle.launched_nodes  # type: ignore[attr-defined]
     (handle, _) = backend.provision(dummy_task,
-                                    to_provision=handle.launched_resources,  # type: ignore[union-attr]
+                                    to_provision=handle.launched_resources,  # type: ignore[attr-defined]
                                     dryrun=False,
                                     stream_logs=True,
                                     cluster_name=cluster_name,
