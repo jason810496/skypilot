@@ -4564,7 +4564,7 @@ class CloudVmRayBackend(backends.Backend['CloudVmRayResourceHandle']):
                 ssh_mode=command_runner.SshMode.INTERACTIVE,
             )
         except SystemExit as e:
-            final = e.code  # type: ignore[assignment]
+            final = e.code if isinstance(e.code, int) else 1
         return final
 
     def tail_autostop_logs(self,
@@ -4612,7 +4612,7 @@ class CloudVmRayBackend(backends.Backend['CloudVmRayResourceHandle']):
                 ssh_mode=command_runner.SshMode.INTERACTIVE,
             )
         except SystemExit as e:
-            returncode = e.code  # type: ignore[assignment]
+            returncode = e.code if isinstance(e.code, int) else 1
         return returncode
 
     def tail_managed_job_logs(self,
@@ -4645,7 +4645,7 @@ class CloudVmRayBackend(backends.Backend['CloudVmRayResourceHandle']):
                 ssh_mode=command_runner.SshMode.INTERACTIVE,
             )
         except SystemExit as e:
-            returncode = e.code  # type: ignore[assignment]
+            returncode = e.code if isinstance(e.code, int) else 1
         return returncode
 
     def sync_down_managed_job_logs(
