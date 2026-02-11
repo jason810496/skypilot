@@ -2912,8 +2912,7 @@ class AzureBlobStore(AbstractStore):
             # TODO(cooperc): fix the types for mypy 1.16
             # Azure store expects a string path; metadata.source may be a Path
             # or List[Path].
-            source=override_args.get('source',
-                                     metadata.source),
+            source=override_args.get('source', metadata.source),
             region=override_args.get('region', metadata.region),
             is_sky_managed=override_args.get('is_sky_managed',
                                              metadata.is_sky_managed),
@@ -4042,8 +4041,7 @@ class IBMCosStore(AbstractStore):
                     f' To debug, consider running `{command}`.') from e
 
         try:
-            uri_region = data_utils.split_cos_path(
-                self.source)[2]
+            uri_region = data_utils.split_cos_path(self.source)[2]
         except ValueError:
             # source isn't a cos uri
             uri_region = ''
@@ -4110,16 +4108,14 @@ class IBMCosStore(AbstractStore):
         # install rclone if not installed.
         install_cmd = mounting_utils.get_rclone_install_cmd()
         rclone_config = data_utils.Rclone.RcloneStores.IBM.get_config(
-            rclone_profile_name=self.rclone_profile_name,
-            region=self.region)
-        mount_cmd = (
-            mounting_utils.get_cos_mount_cmd(
-                rclone_config,
-                self.rclone_profile_name,
-                self.bucket.name,
-                mount_path,
-                self._bucket_sub_path,
-            ))
+            rclone_profile_name=self.rclone_profile_name, region=self.region)
+        mount_cmd = (mounting_utils.get_cos_mount_cmd(
+            rclone_config,
+            self.rclone_profile_name,
+            self.bucket.name,
+            mount_path,
+            self._bucket_sub_path,
+        ))
         return mounting_utils.get_mounting_command(mount_path, install_cmd,
                                                    mount_cmd)
 

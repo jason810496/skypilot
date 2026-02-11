@@ -2154,11 +2154,9 @@ class Resources:
             memory_parsed = memory_parsed[:-1]
         memory_gb = int(memory_parsed)
 
-        result = [
-            (f'{device}:{count}', False)
-            for device in accelerator_registry.get_devices_by_memory(
-                memory_gb, plus, manufacturer=manufacturer)
-        ]
+        result = [(f'{device}:{count}', False)
+                  for device in accelerator_registry.get_devices_by_memory(
+                      memory_gb, plus, manufacturer=manufacturer)]
 
         return result
 
