@@ -2369,7 +2369,7 @@ class Resources:
         if resources_fields['memory'] is not None:
             resources_fields['memory'] = str(resources_fields['memory'])
         if resources_fields['accelerator_args'] is not None:
-            resources_fields['accelerator_args'] = dict(  # type: ignore[arg-type]
+            resources_fields['accelerator_args'] = dict(  # type: ignore
                 resources_fields['accelerator_args'])
         if resources_fields['disk_size'] is not None:
             # although it will end up being an int, we don't know at this point
