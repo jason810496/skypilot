@@ -17,7 +17,7 @@ import threading
 import time
 import typing
 from typing import (Any, Callable, Dict, Iterator, List, Optional, Sequence,
-                    Set, Tuple, TypeVar, Union)
+                    Set, Tuple, TYPE_CHECKING, TypeVar, Union)
 import uuid
 
 import aiohttp
@@ -654,7 +654,7 @@ def write_cluster_config(
     keep_launch_fields_in_existing_config: bool = True,
     volume_mounts: Optional[List['volume_utils.VolumeMount']] = None,
     cloud_specific_failover_overrides: Optional[Dict[str, Any]] = None,
-) -> Dict[str, str]:
+) -> Dict[str, Any]:
     """Fills in cluster configuration templates and writes them out.
 
     Returns:
@@ -3183,7 +3183,7 @@ def is_controller_accessible(
         # status of the controller.
         controller_status, handle = refresh_cluster_status_handle(
             cluster_name,
-            force_refresh_statuses=[status_lib.ClusterStatus.INIT],
+            force_refresh_statuses={status_lib.ClusterStatus.INIT},
             cluster_status_lock_timeout=0)
     except exceptions.ClusterStatusFetchingError as e:
         # We do not catch the exceptions related to the cluster owner identity
@@ -3223,6 +3223,9 @@ def is_controller_accessible(
                                                    handle.docker_user,
                                                    handle.ssh_user)
 
+        if TYPE_CHECKING:
+            assert handle.head_ip is not None
+            assert handle.head_ssh_port is not None
         runner = command_runner.SSHCommandRunner(node=(handle.head_ip,
                                                        handle.head_ssh_port),
                                                  **ssh_credentials)
@@ -3243,6 +3246,9 @@ def is_controller_accessible(
                                                handle=handle)
     assert handle is not None and handle.head_ip is not None, (
         handle, controller_status)
+    # TODO(jason810496): We should correct the return type to 'ResourceHandle' instead of 'CloudVmRayResourceHandle'.
+    if TYPE_CHECKING:
+        assert isinstance(handle, backends.CloudVmRayResourceHandle), handle
     return handle
 
 

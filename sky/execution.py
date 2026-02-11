@@ -710,12 +710,12 @@ def launch(
             cluster_status, maybe_handle = (
                 backend_utils.refresh_cluster_status_handle(
                     cluster_name,
-                    force_refresh_statuses=[
+                    force_refresh_statuses={
                         # If the cluster is INIT, we want to try to grab the
                         # status lock, which should block until provisioning is
                         # finished.
                         status_lib.ClusterStatus.INIT,
-                    ],
+                    },
                     # Wait indefinitely to obtain the lock, so that we don't
                     # have multiple processes launching the same cluster at
                     # once.

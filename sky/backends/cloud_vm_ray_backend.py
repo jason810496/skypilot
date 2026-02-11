@@ -19,10 +19,11 @@ import threading
 import time
 import typing
 from typing import (Any, Callable, Dict, Iterable, Iterator, List, Optional,
-                    Set, Tuple, Union)
+                    Set, Tuple, TYPE_CHECKING, Union)
 
 import colorama
 import psutil
+from typing_extensions import Literal
 
 from sky import backends
 from sky import catalog
@@ -2066,6 +2067,9 @@ class CloudVmRayResourceHandle(backends.backend.ResourceHandle):
                 logger.debug(f'Using provided external IPs: {external_ips}')
                 cluster_feasible_ips = typing.cast(List[str], external_ips)
             else:
+                if TYPE_CHECKING:
+                    assert self.cluster_yaml is not None
+
                 cluster_feasible_ips = backend_utils.get_node_ips(
                     self.cluster_yaml,
                     self.launched_nodes,
@@ -2098,6 +2102,8 @@ class CloudVmRayResourceHandle(backends.backend.ResourceHandle):
                 logger.debug(f'Using provided internal IPs: {internal_ips}')
                 cluster_internal_ips = typing.cast(List[str], internal_ips)
             else:
+                if TYPE_CHECKING:
+                    assert self.cluster_yaml is not None
                 cluster_internal_ips = backend_utils.get_node_ips(
                     self.cluster_yaml,
                     self.launched_nodes,
@@ -3299,6 +3305,8 @@ class CloudVmRayBackend(backends.Backend['CloudVmRayResourceHandle']):
                 handle.launched_resources = handle.launched_resources.copy(
                     region=provision_record.region, zone=provision_record.zone)
 
+                if TYPE_CHECKING:
+                    assert config_hash is not None, 'config_hash should be str'
                 self._update_after_cluster_provisioned(
                     handle, to_provision_config.prev_handle, task,
                     prev_cluster_status, config_hash)
@@ -3364,6 +3372,8 @@ class CloudVmRayBackend(backends.Backend['CloudVmRayResourceHandle']):
             # and restarted if necessary.
             self.check_skylet_running(handle)
 
+            if TYPE_CHECKING:
+                assert config_hash is not None, 'config_hash should be str'
             self._update_after_cluster_provisioned(
                 handle, to_provision_config.prev_handle, task,
                 prev_cluster_status, config_hash)
@@ -4611,6 +4621,8 @@ class CloudVmRayBackend(backends.Backend['CloudVmRayResourceHandle']):
                 ssh_mode=command_runner.SshMode.INTERACTIVE,
             )
         except SystemExit as e:
+            if TYPE_CHECKING:
+                assert isinstance(e.code, int)
             returncode = e.code
         return returncode
 
@@ -4644,6 +4656,8 @@ class CloudVmRayBackend(backends.Backend['CloudVmRayResourceHandle']):
                 ssh_mode=command_runner.SshMode.INTERACTIVE,
             )
         except SystemExit as e:
+            if TYPE_CHECKING:
+                assert isinstance(e.code, int)
             returncode = e.code
         return returncode
 
@@ -5445,6 +5459,44 @@ class CloudVmRayBackend(backends.Backend['CloudVmRayResourceHandle']):
 
     # TODO(zhwu): Refactor this to a CommandRunner class, so different backends
     # can support its own command runner.
+    @typing.overload
+    def run_on_head(
+        self,
+        handle: CloudVmRayResourceHandle,
+        cmd: str,
+        *,
+        port_forward: Optional[List[int]] = ...,
+        log_path: str = ...,
+        stream_logs: bool = ...,
+        ssh_mode: command_runner.SshMode = ...,
+        under_remote_workdir: bool = ...,
+        require_outputs: Literal[False] = ...,
+        separate_stderr: bool = ...,
+        process_stream: bool = ...,
+        source_bashrc: bool = ...,
+        **kwargs,
+    ) -> int:
+        ...
+
+    @typing.overload
+    def run_on_head(
+        self,
+        handle: CloudVmRayResourceHandle,
+        cmd: str,
+        *,
+        port_forward: Optional[List[int]] = ...,
+        log_path: str = ...,
+        stream_logs: bool = ...,
+        ssh_mode: command_runner.SshMode = ...,
+        under_remote_workdir: bool = ...,
+        require_outputs: Literal[True],
+        separate_stderr: bool = ...,
+        process_stream: bool = ...,
+        source_bashrc: bool = ...,
+        **kwargs,
+    ) -> Tuple[int, str, str]:
+        ...
+
     @timeline.event
     @context_utils.cancellation_guard
     def run_on_head(
