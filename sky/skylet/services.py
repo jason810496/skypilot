@@ -38,7 +38,7 @@ class AutostopServiceImpl(autostopv1_pb2_grpc.AutostopServiceServicer):
     def SetAutostop(
             self, request: autostopv1_pb2.SetAutostopRequest,
             context: grpc.ServicerContext
-    ) -> autostopv1_pb2.SetAutostopResponse:  # type: ignore[invalid-return-type]
+    ) -> autostopv1_pb2.SetAutostopResponse:  # type: ignore
         """Sets autostop configuration for the cluster."""
         try:
             wait_for = autostop_lib.AutostopWaitFor.from_protobuf(
@@ -61,7 +61,7 @@ class AutostopServiceImpl(autostopv1_pb2_grpc.AutostopServiceServicer):
     def IsAutostopping(
             self, request: autostopv1_pb2.IsAutostoppingRequest,
             context: grpc.ServicerContext
-    ) -> autostopv1_pb2.IsAutostoppingResponse:  # type: ignore[invalid-return-type]
+    ) -> autostopv1_pb2.IsAutostoppingResponse:  # type: ignore
         """Checks if the cluster is currently autostopping."""
         try:
             is_autostopping = autostop_lib.get_is_autostopping()
@@ -82,7 +82,7 @@ class ServeServiceImpl(servev1_pb2_grpc.ServeServiceServicer):
     def GetServiceStatus(
             self, request: servev1_pb2.GetServiceStatusRequest,
             context: grpc.ServicerContext
-    ) -> servev1_pb2.GetServiceStatusResponse:  # type: ignore[invalid-return-type]
+    ) -> servev1_pb2.GetServiceStatusResponse:  # type: ignore
         """Gets serve status."""
         try:
             service_names, pool = (
@@ -96,7 +96,8 @@ class ServeServiceImpl(servev1_pb2_grpc.ServeServiceServicer):
 
     def AddVersion(
             self, request: servev1_pb2.AddVersionRequest,
-            context: grpc.ServicerContext) -> servev1_pb2.AddVersionResponse:  # type: ignore[invalid-return-type]
+            context: grpc.ServicerContext
+    ) -> servev1_pb2.AddVersionResponse:  # type: ignore
         """Adds serve version"""
         try:
             service_name = request.service_name
@@ -108,7 +109,7 @@ class ServeServiceImpl(servev1_pb2_grpc.ServeServiceServicer):
     def TerminateServices(
             self, request: servev1_pb2.TerminateServicesRequest,
             context: grpc.ServicerContext
-    ) -> servev1_pb2.TerminateServicesResponse:  # type: ignore[invalid-return-type]
+    ) -> servev1_pb2.TerminateServicesResponse:  # type: ignore
         """Terminates serve"""
         try:
             service_names, purge, pool = (
@@ -121,7 +122,7 @@ class ServeServiceImpl(servev1_pb2_grpc.ServeServiceServicer):
     def TerminateReplica(
             self, request: servev1_pb2.TerminateReplicaRequest,
             context: grpc.ServicerContext
-    ) -> servev1_pb2.TerminateReplicaResponse:  # type: ignore[invalid-return-type]
+    ) -> servev1_pb2.TerminateReplicaResponse:  # type: ignore
         """Terminate replica"""
         try:
             service_name = request.service_name
@@ -136,7 +137,7 @@ class ServeServiceImpl(servev1_pb2_grpc.ServeServiceServicer):
     def WaitServiceRegistration(
         self, request: servev1_pb2.WaitServiceRegistrationRequest,
         context: grpc.ServicerContext
-    ) -> servev1_pb2.WaitServiceRegistrationResponse:  # type: ignore[invalid-return-type]
+    ) -> servev1_pb2.WaitServiceRegistrationResponse:  # type: ignore
         """Wait for service to be registered"""
         try:
             service_name = request.service_name
@@ -151,7 +152,8 @@ class ServeServiceImpl(servev1_pb2_grpc.ServeServiceServicer):
 
     def UpdateService(
             self, request: servev1_pb2.UpdateServiceRequest,
-            context: grpc.ServicerContext) -> servev1_pb2.UpdateServiceResponse:  # type: ignore[invalid-return-type]
+            context: grpc.ServicerContext
+    ) -> servev1_pb2.UpdateServiceResponse:  # type: ignore
         """Update service"""
         try:
             service_name = request.service_name
@@ -170,7 +172,8 @@ class JobsServiceImpl(jobsv1_pb2_grpc.JobsServiceServicer):
 
     def AddJob(
             self, request: jobsv1_pb2.AddJobRequest,
-            context: grpc.ServicerContext) -> jobsv1_pb2.AddJobResponse:  # type: ignore[invalid-return-type]
+            context: grpc.ServicerContext
+    ) -> jobsv1_pb2.AddJobResponse:  # type: ignore
         try:
             job_name = request.job_name if request.HasField('job_name') else '-'
             job_id, log_dir = job_lib.add_job(job_name, request.username,
@@ -183,7 +186,8 @@ class JobsServiceImpl(jobsv1_pb2_grpc.JobsServiceServicer):
 
     def QueueJob(
             self, request: jobsv1_pb2.QueueJobRequest,
-            context: grpc.ServicerContext) -> jobsv1_pb2.QueueJobResponse:  # type: ignore[invalid-return-type]
+            context: grpc.ServicerContext
+    ) -> jobsv1_pb2.QueueJobResponse:  # type: ignore
         try:
             job_id = request.job_id
             # Create log directory and file
@@ -218,7 +222,7 @@ class JobsServiceImpl(jobsv1_pb2_grpc.JobsServiceServicer):
     def SetJobInfoWithoutJobId(
         self, request: jobsv1_pb2.SetJobInfoWithoutJobIdRequest,
         context: grpc.ServicerContext
-    ) -> jobsv1_pb2.SetJobInfoWithoutJobIdResponse:  # type: ignore[invalid-return-type]
+    ) -> jobsv1_pb2.SetJobInfoWithoutJobIdResponse:  # type: ignore
         try:
             pool = request.pool if request.HasField('pool') else None
             pool_hash = request.pool_hash if request.HasField(
@@ -252,7 +256,8 @@ class JobsServiceImpl(jobsv1_pb2_grpc.JobsServiceServicer):
 
     def UpdateStatus(
             self, request: jobsv1_pb2.UpdateStatusRequest,
-            context: grpc.ServicerContext) -> jobsv1_pb2.UpdateStatusResponse:  # type: ignore[invalid-return-type]
+            context: grpc.ServicerContext
+    ) -> jobsv1_pb2.UpdateStatusResponse:  # type: ignore
         try:
             job_lib.update_status()
             return jobsv1_pb2.UpdateStatusResponse()
@@ -261,7 +266,8 @@ class JobsServiceImpl(jobsv1_pb2_grpc.JobsServiceServicer):
 
     def GetJobQueue(
             self, request: jobsv1_pb2.GetJobQueueRequest,
-            context: grpc.ServicerContext) -> jobsv1_pb2.GetJobQueueResponse:  # type: ignore[invalid-return-type]
+            context: grpc.ServicerContext
+    ) -> jobsv1_pb2.GetJobQueueResponse:  # type: ignore
         try:
             user_hash = request.user_hash if request.HasField(
                 'user_hash') else None
@@ -274,7 +280,8 @@ class JobsServiceImpl(jobsv1_pb2_grpc.JobsServiceServicer):
 
     def CancelJobs(
             self, request: jobsv1_pb2.CancelJobsRequest,
-            context: grpc.ServicerContext) -> jobsv1_pb2.CancelJobsResponse:  # type: ignore[invalid-return-type]
+            context: grpc.ServicerContext
+    ) -> jobsv1_pb2.CancelJobsResponse:  # type: ignore
         try:
             job_ids = list(request.job_ids) if request.job_ids else []
             user_hash = request.user_hash if request.HasField(
@@ -289,7 +296,7 @@ class JobsServiceImpl(jobsv1_pb2_grpc.JobsServiceServicer):
     def FailAllInProgressJobs(
         self, _: jobsv1_pb2.FailAllInProgressJobsRequest,
         context: grpc.ServicerContext
-    ) -> jobsv1_pb2.FailAllInProgressJobsResponse:  # type: ignore[invalid-return-type]
+    ) -> jobsv1_pb2.FailAllInProgressJobsResponse:  # type: ignore
         try:
             job_lib.fail_all_jobs_in_progress()
             return jobsv1_pb2.FailAllInProgressJobsResponse()
@@ -336,7 +343,8 @@ class JobsServiceImpl(jobsv1_pb2_grpc.JobsServiceServicer):
 
     def GetJobStatus(
             self, request: jobsv1_pb2.GetJobStatusRequest,
-            context: grpc.ServicerContext) -> jobsv1_pb2.GetJobStatusResponse:  # type: ignore[invalid-return-type]
+            context: grpc.ServicerContext
+    ) -> jobsv1_pb2.GetJobStatusResponse:  # type: ignore
         try:
             if request.job_ids:
                 job_ids = list(request.job_ids)
@@ -354,7 +362,7 @@ class JobsServiceImpl(jobsv1_pb2_grpc.JobsServiceServicer):
     def GetJobSubmittedTimestamp(
         self, request: jobsv1_pb2.GetJobSubmittedTimestampRequest,
         context: grpc.ServicerContext
-    ) -> jobsv1_pb2.GetJobSubmittedTimestampResponse:  # type: ignore[invalid-return-type]
+    ) -> jobsv1_pb2.GetJobSubmittedTimestampResponse:  # type: ignore
         try:
             job_id = request.job_id if request.HasField(
                 'job_id') else job_lib.get_latest_job_id()
@@ -371,7 +379,7 @@ class JobsServiceImpl(jobsv1_pb2_grpc.JobsServiceServicer):
     def GetJobEndedTimestamp(
         self, request: jobsv1_pb2.GetJobEndedTimestampRequest,
         context: grpc.ServicerContext
-    ) -> jobsv1_pb2.GetJobEndedTimestampResponse:  # type: ignore[invalid-return-type]
+    ) -> jobsv1_pb2.GetJobEndedTimestampResponse:  # type: ignore
         try:
             job_id = request.job_id if request.HasField(
                 'job_id') else job_lib.get_latest_job_id()
@@ -387,7 +395,7 @@ class JobsServiceImpl(jobsv1_pb2_grpc.JobsServiceServicer):
     def GetLogDirsForJobs(
             self, request: jobsv1_pb2.GetLogDirsForJobsRequest,
             context: grpc.ServicerContext
-    ) -> jobsv1_pb2.GetLogDirsForJobsResponse:  # type: ignore[invalid-return-type]
+    ) -> jobsv1_pb2.GetLogDirsForJobsResponse:  # type: ignore
         try:
             if request.job_ids:
                 job_ids = list(request.job_ids)
@@ -403,7 +411,7 @@ class JobsServiceImpl(jobsv1_pb2_grpc.JobsServiceServicer):
     def GetJobExitCodes(
             self, request: jobsv1_pb2.GetJobExitCodesRequest,
             context: grpc.ServicerContext
-    ) -> jobsv1_pb2.GetJobExitCodesResponse:  # type: ignore[invalid-return-type]
+    ) -> jobsv1_pb2.GetJobExitCodesResponse:  # type: ignore
         try:
             job_id = request.job_id if request.HasField(
                 'job_id') else job_lib.get_latest_job_id()
@@ -423,7 +431,7 @@ class ManagedJobsServiceImpl(managed_jobsv1_pb2_grpc.ManagedJobsServiceServicer
     def GetVersion(
             self, request: managed_jobsv1_pb2.GetVersionRequest,
             context: grpc.ServicerContext
-    ) -> managed_jobsv1_pb2.GetVersionResponse:  # type: ignore[invalid-return-type]
+    ) -> managed_jobsv1_pb2.GetVersionResponse:  # type: ignore
         try:
             return managed_jobsv1_pb2.GetVersionResponse(
                 controller_version=constants.SKYLET_VERSION)
@@ -433,7 +441,7 @@ class ManagedJobsServiceImpl(managed_jobsv1_pb2_grpc.ManagedJobsServiceServicer
     def GetJobTable(
         self, request: managed_jobsv1_pb2.GetJobTableRequest,
         context: grpc.ServicerContext
-    ) -> managed_jobsv1_pb2.GetJobTableResponse:  # type: ignore[invalid-return-type]
+    ) -> managed_jobsv1_pb2.GetJobTableResponse:  # type: ignore
         try:
             accessible_workspaces = (
                 list(request.accessible_workspaces.workspaces)
@@ -538,7 +546,7 @@ class ManagedJobsServiceImpl(managed_jobsv1_pb2_grpc.ManagedJobsServiceServicer
     def GetAllJobIdsByName(
         self, request: managed_jobsv1_pb2.GetAllJobIdsByNameRequest,
         context: grpc.ServicerContext
-    ) -> managed_jobsv1_pb2.GetAllJobIdsByNameResponse:  # type: ignore[invalid-return-type]
+    ) -> managed_jobsv1_pb2.GetAllJobIdsByNameResponse:  # type: ignore
         try:
             job_name = request.job_name if request.HasField(
                 'job_name') else None
@@ -551,7 +559,7 @@ class ManagedJobsServiceImpl(managed_jobsv1_pb2_grpc.ManagedJobsServiceServicer
     def CancelJobs(
             self, request: managed_jobsv1_pb2.CancelJobsRequest,
             context: grpc.ServicerContext
-    ) -> managed_jobsv1_pb2.CancelJobsResponse:  # type: ignore[invalid-return-type]
+    ) -> managed_jobsv1_pb2.CancelJobsResponse:  # type: ignore
         try:
             cancellation_criteria = request.WhichOneof('cancellation_criteria')
             if cancellation_criteria is None:

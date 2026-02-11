@@ -485,13 +485,15 @@ def _usable_subnets(
 
     if azs is not None:
         azs_list = [az.strip() for az in azs.split(',')]
+        # Iterate over AZs first to maintain the ordering
         subnets = [
-            s for az in azs_list  # Iterate over AZs first to maintain the ordering
+            s for az in azs_list
             for s in subnets if s.availability_zone == az
         ]
         if not subnets:
             _skypilot_log_error_and_exit_for_failover(
-                f'No usable subnets matching availability zone {azs_list} found. '
+                f'No usable subnets matching availability zone {azs_list} '
+                'found. '
                 'Choose a different availability zone or try manually '
                 'creating an instance in your specified region to populate '
                 'the list of subnets and trying this again. If you have set '

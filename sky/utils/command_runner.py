@@ -1342,7 +1342,7 @@ class SSHCommandRunner(CommandRunner):
                 return result  # type: ignore[return-value]
 
             session_id = str(uuid.uuid4())
-            return self._retry_with_interactive_auth(  # type: ignore[return-value]
+            return self._retry_with_interactive_auth(  # type: ignore
                 session_id, command,
                 log_path, require_outputs,
                 process_stream,

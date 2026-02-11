@@ -475,7 +475,8 @@ def store_exception(e: Union[Exception, SystemExit, KeyboardInterrupt]) -> None:
             trace = traceback.format_exc()
             messages.usage.stacktrace = trace
         if hasattr(e, 'detailed_reason') and e.detailed_reason is not None:
-            messages.usage.stacktrace += '\nDetails: ' + e.detailed_reason  # type: ignore[operator]
+            messages.usage.stacktrace += (
+                '\nDetails: ' + e.detailed_reason)  # type: ignore
         messages.usage.exception = common_utils.remove_color(
             common_utils.format_exception(e))
 
