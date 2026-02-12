@@ -2701,6 +2701,108 @@ def cancel(
                 raise
 
 
+def _extract_cluster_from_rsync_args(
+    source: str,
+    destination: str,
+) -> Optional[str]:
+    """Extract the cluster name from rsync-style source or destination.
+
+    Returns the cluster name if exactly one of source/destination contains
+    a colon-separated cluster prefix (e.g., 'my-cluster:~/file'), or None
+    if neither does (pure local rsync).
+
+    A prefix is only treated as a cluster name if it does not contain path
+    separators (``/`` or ``\\``), so that local paths with colons (e.g.
+    ``/path/with:colon``) are not misinterpreted.
+
+    Raises click.UsageError if both source and destination contain a cluster
+    prefix (remote-to-remote is not supported).
+    """
+
+    def _get_cluster(arg: str) -> Optional[str]:
+        if ':' not in arg:
+            return None
+        prefix = arg.split(':')[0]
+        # A cluster name never contains path separators.
+        if '/' in prefix or '\\' in prefix:
+            return None
+        return prefix
+
+    src_cluster = _get_cluster(source)
+    dst_cluster = _get_cluster(destination)
+    if src_cluster and dst_cluster:
+        raise click.UsageError(
+            'Both source and destination contain a cluster prefix. '
+            'Remote-to-remote rsync is not supported.')
+    return src_cluster or dst_cluster
+
+
+@cli.command()
+@flags.config_option(expose_value=False)
+@click.argument('source', required=True, type=str)
+@click.argument('destination', required=True, type=str)
+@click.argument('rsync_args', nargs=-1, type=click.UNPROCESSED)
+@usage_lib.entrypoint
+def rsync(
+    source: str,
+    destination: str,
+    rsync_args: Tuple[str, ...],
+):
+    # NOTE(dev): Keep the docstring consistent between the Python API and CLI.
+    """Sync files between a cluster and the local machine using rsync.
+
+    Uses the cluster name as an SSH hostname, ensuring the SSH config is
+    set up before running rsync.
+
+    SOURCE and DESTINATION follow rsync syntax: use ``cluster:path`` for
+    remote paths on a SkyPilot cluster and a regular path for local paths.
+
+    Any additional arguments after ``--`` are passed directly to rsync.
+
+    Examples:
+
+    .. code-block:: bash
+
+      # Download a file from a cluster.
+      sky rsync my-cluster:~/file.txt ./
+      \b
+      # Upload a directory to a cluster.
+      sky rsync ./local/dir/ my-cluster:~/remote/
+      \b
+      # Pass extra rsync flags after --.
+      sky rsync my-cluster:~/data/ ./data/ -- -avz --progress
+
+    """
+    cluster_name = _extract_cluster_from_rsync_args(source, destination)
+    if cluster_name is None:
+        raise click.UsageError(
+            'Either SOURCE or DESTINATION must contain a cluster prefix '
+            '(e.g., my-cluster:~/path).')
+
+    # Ensure SSH config is up to date for the cluster.
+    records = _get_cluster_records_and_set_ssh_config(clusters=[cluster_name])
+    if not records:
+        raise click.UsageError(f'Cluster {cluster_name!r} not found. '
+                               'Please check the cluster name with '
+                               '`sky status`.')
+    record = records[0]
+    handle = record['handle']
+    if handle is None or handle.cached_external_ips is None:
+        raise click.UsageError(f'Cluster {cluster_name!r} is not UP. '
+                               'Please start the cluster first with '
+                               '`sky start`.')
+
+    rsync_cmd = ['rsync'] + list(rsync_args) + [source, destination]
+    try:
+        subprocess.run(rsync_cmd, check=True)
+    except FileNotFoundError:
+        with ux_utils.print_exception_no_traceback():
+            raise click.UsageError(
+                'rsync is not installed. Please install rsync and try again.')
+    except subprocess.CalledProcessError as e:
+        sys.exit(e.returncode)
+
+
 @cli.command(cls=_DocumentedCodeCommand)
 @flags.config_option(expose_value=False)
 @click.argument('clusters',
