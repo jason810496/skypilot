@@ -654,7 +654,7 @@ def write_cluster_config(
     keep_launch_fields_in_existing_config: bool = True,
     volume_mounts: Optional[List['volume_utils.VolumeMount']] = None,
     cloud_specific_failover_overrides: Optional[Dict[str, Any]] = None,
-) -> Dict[str, Any]:
+) -> Dict[str, str]:
     """Fills in cluster configuration templates and writes them out.
 
     Returns:
@@ -1408,7 +1408,7 @@ def get_docker_user(ip: str, cluster_config_file: str) -> str:
     ssh_credentials = ssh_credential_from_yaml(cluster_config_file)
     runner = command_runner.SSHCommandRunner(node=(ip, 22), **ssh_credentials)
     container_name = constants.DEFAULT_DOCKER_CONTAINER_NAME
-    whoami_returncode, whoami_stdout, whoami_stderr = runner.run(
+    whoami_returncode, whoami_stdout, whoami_stderr = runner.run(  # pylint: disable=unpacking-non-sequence
         f'sudo docker exec {container_name} whoami',
         stream_logs=False,
         require_outputs=True)
@@ -1461,7 +1461,7 @@ def wait_until_ray_cluster_ready(
             ux_utils.spinner_message('Waiting for workers',
                                      log_path=log_path)) as worker_status:
         while True:
-            rc, output, stderr = runner.run(
+            rc, output, stderr = runner.run(  # pylint: disable=unpacking-non-sequence
                 instance_setup.RAY_STATUS_WITH_SKY_RAY_PORT_COMMAND,
                 log_path=log_path,
                 stream_logs=False,

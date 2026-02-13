@@ -2198,7 +2198,7 @@ exec {ssh_command} srun --unbuffered --quiet --overlap {extra_srun_args}\\
         # Both host and container: ensure environment is consistent.
         result = self._run_via_srun(cmd, in_container=False, **kwargs)
         if self.container_args:
-            returncode = result if isinstance(result, int) else result[0]
+            returncode = result if isinstance(result, int) else result[0]  # pylint: disable=unsubscriptable-object
             if returncode != 0:
                 return result
             result = self._run_via_srun(cmd, in_container=True, **kwargs)

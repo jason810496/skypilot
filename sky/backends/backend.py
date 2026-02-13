@@ -21,7 +21,7 @@ _ResourceHandleType = typing.TypeVar('_ResourceHandleType',
 
 # Backend-specific handle to the launched resources (e.g., a cluster).
 # Examples: 'cluster.yaml'; 'ray://...', 'k8s://...'.
-class ResourceHandle:
+class ResourceHandle:  # pylint: disable=missing-class-docstring
 
     launched_nodes: int
     launched_resources: 'resources.Resources'
