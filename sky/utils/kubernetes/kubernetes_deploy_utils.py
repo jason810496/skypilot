@@ -112,7 +112,7 @@ def _get_port_range(name: str, port_start: Optional[int]) -> Tuple[int, int]:
 
 
 def deploy_local_cluster(name: Optional[str], port_start: Optional[int],
-                         gpus: bool):
+                         gpus: bool, fake_gpu_operator: bool = False):
     name = name or DEFAULT_LOCAL_CLUSTER_NAME
     port_start, port_end = _get_port_range(name, port_start)
     context_name = f'kind-{name}'
@@ -131,9 +131,12 @@ def deploy_local_cluster(name: Optional[str], port_start: Optional[int],
                 f'\nWill automatically switch to {context_name} after the '
                 'local cluster is created.')
     message_str = 'Creating local cluster {}{}...'
-    message_str = message_str.format(
-        name,
-        ' with GPU support (this may take up to 15 minutes)' if gpus else '')
+    gpu_suffix = ''
+    if gpus:
+        gpu_suffix = ' with GPU support (this may take up to 15 minutes)'
+    elif fake_gpu_operator:
+        gpu_suffix = ' with Fake GPU Operator'
+    message_str = message_str.format(name, gpu_suffix)
 
     with tempfile.NamedTemporaryFile(mode='w+', suffix='.yaml',
                                      delete=True) as f:
@@ -151,6 +154,8 @@ def deploy_local_cluster(name: Optional[str], port_start: Optional[int],
         run_command = f'{up_script_path} {name} {f.name}'
         if gpus:
             run_command += ' --gpus'
+        if fake_gpu_operator:
+            run_command += ' --fake-gpu-operator'
         run_command = shlex.split(run_command)
 
         # Setup logging paths
