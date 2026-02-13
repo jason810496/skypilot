@@ -1,6 +1,6 @@
 #!/bin/bash
 # Creates a local Kubernetes cluster using kind with optional GPU support
-# Usage: ./create_cluster.sh [name] [yaml_path] [--gpus]
+# Usage: ./create_cluster.sh [name] [yaml_path] [--gpus] [--fake-gpu-operator]
 set -e
 
 # Images
@@ -13,9 +13,14 @@ YAML_PATH=$2
 
 # Check for GPU flag
 ENABLE_GPUS=false
-if [[ "$3" == "--gpus" ]]; then
-    ENABLE_GPUS=true
-fi
+FAKE_GPU_OPERATOR=false
+for arg in "${@:3}"; do
+    if [[ "$arg" == "--gpus" ]]; then
+        ENABLE_GPUS=true
+    elif [[ "$arg" == "--fake-gpu-operator" ]]; then
+        FAKE_GPU_OPERATOR=true
+    fi
+done
 
 # ====== Dependency checks =======
 # Initialize error message string
@@ -62,8 +67,10 @@ if $ENABLE_GPUS; then
     if ! grep -q 'accept-nvidia-visible-devices-as-volume-mounts = true' /etc/nvidia-container-runtime/config.toml; then
         error_msg+="\n* NVIDIA visible devices are not set as volume mounts in container runtime. To fix, run: \nsudo sed -i '/accept-nvidia-visible-devices-as-volume-mounts/c\\\\accept-nvidia-visible-devices-as-volume-mounts = true' /etc/nvidia-container-runtime/config.toml\n"
     fi
+fi
 
-    # Check if helm is installed
+if $ENABLE_GPUS || $FAKE_GPU_OPERATOR; then
+    # Check if helm is installed (needed for GPU operator and fake GPU operator)
     if ! helm version > /dev/null 2>&1; then
         error_msg+="\n* helm is not installed. Please install helm and try again.\nInstallation instructions: https://helm.sh/docs/intro/install/\n"
     fi
@@ -153,6 +160,16 @@ if $ENABLE_GPUS; then
          nvidia/gpu-operator --set driver.enabled=false
     # Wait for GPU operator installation to succeed
     wait_for_gpu_operator_installation
+fi
+
+if $FAKE_GPU_OPERATOR; then
+    echo "Installing Fake GPU Operator..."
+    # Label the node for fake GPU simulation
+    kubectl label node $NAME-control-plane run.ai/simulated-gpu-node-pool=default --overwrite
+    # Install the Fake GPU Operator via Helm OCI
+    helm upgrade -i gpu-operator oci://ghcr.io/run-ai/fake-gpu-operator/fake-gpu-operator \
+         --namespace gpu-operator --create-namespace
+    echo "Fake GPU Operator installed."
 fi
 
 # Install the Nginx Ingress Controller

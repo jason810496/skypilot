@@ -7115,14 +7115,20 @@ def local():
     help='Starting port range for the local kind cluster. Needs to be a '
     'multiple of 100. If not given, a random range will be used. '
     'Used without ip list.')
+@click.option('--fake-gpu-operator',
+              default=False,
+              is_flag=True,
+              help='Install the Fake GPU Operator '
+              '(https://github.com/run-ai/fake-gpu-operator) to simulate '
+              'GPUs in the local cluster without requiring physical GPUs.')
 @local.command('up', cls=_DocumentedCodeCommand)
 @flags.config_option(expose_value=False)
 @_add_click_options(flags.COMMON_OPTIONS)
 @usage_lib.entrypoint
 def local_up(gpus: bool, name: Optional[str], port_start: Optional[int],
-             async_call: bool):
+             fake_gpu_operator: bool, async_call: bool):
     """Creates a local cluster."""
-    request_id = sdk.local_up(gpus, name, port_start)
+    request_id = sdk.local_up(gpus, name, port_start, fake_gpu_operator)
     _async_call_or_wait(request_id, async_call, request_name='local up')
 
 
