@@ -326,7 +326,7 @@ def _convert_requests_cookies_to_aiohttp(
     cookies = {}
     for cookie in cookie_jar:
         cookies[cookie.name] = cookie.value
-    return cookies  # type: ignore
+    return cookies
 
 
 def make_authenticated_request(method: str,
@@ -672,6 +672,13 @@ def _start_api_server(deploy: bool = False,
             _set_metrics_env_var(os.environ, metrics, deploy)
             if enable_basic_auth:
                 os.environ[constants.ENV_VAR_ENABLE_BASIC_AUTH] = 'true'
+            # Raise the websockets library header limits before the server
+            # process starts (env vars are read at import time).
+            os.environ.setdefault(
+                'WEBSOCKETS_MAX_LINE_LENGTH',
+                server_constants.WEBSOCKETS_MAX_HEADER_LINE_LENGTH)
+            os.environ.setdefault('WEBSOCKETS_MAX_NUM_HEADERS',
+                                  server_constants.WEBSOCKETS_MAX_NUM_HEADERS)
             os.execvp(args[0], args)
 
         log_path = os.path.expanduser(constants.API_SERVER_LOGS)
@@ -680,6 +687,13 @@ def _start_api_server(deploy: bool = False,
         # For spawn mode, copy the environ to avoid polluting the SDK process.
         server_env = os.environ.copy()
         server_env[constants.ENV_VAR_IS_SKYPILOT_SERVER] = 'true'
+        # Raise the websockets library header limits before the server
+        # process starts (env vars are read at import time).
+        server_env.setdefault(
+            'WEBSOCKETS_MAX_LINE_LENGTH',
+            server_constants.WEBSOCKETS_MAX_HEADER_LINE_LENGTH)
+        server_env.setdefault('WEBSOCKETS_MAX_NUM_HEADERS',
+                              server_constants.WEBSOCKETS_MAX_NUM_HEADERS)
         # Start the API server process in the background and don't wait for it.
         # If this is called from a CLI invocation, we need
         # start_new_session=True so that SIGINT on the CLI will not also kill
@@ -712,7 +726,7 @@ def _start_api_server(deploy: bool = False,
                         f'View logs at: {constants.API_SERVER_LOGS}')
             try:
                 # Clear the cache to ensure fresh checks during startup
-                get_api_server_status.cache_clear()  # type: ignore
+                get_api_server_status.cache_clear()
                 check_server_healthy()
             except exceptions.APIVersionMismatchError:
                 raise
@@ -874,7 +888,7 @@ def check_server_healthy_or_start_fn(deploy: bool = False,
                 os.path.expanduser(constants.API_SERVER_CREATION_LOCK_PATH)):
             # Check again if server is already running. Other processes may
             # have started the server while we were waiting for the lock.
-            get_api_server_status.cache_clear()  # type: ignore[attr-defined]
+            get_api_server_status.cache_clear()
             api_server_info = get_api_server_status(endpoint)
             if api_server_info.status == ApiServerStatus.UNHEALTHY:
                 _start_api_server(deploy, host, foreground, metrics,
