@@ -725,6 +725,7 @@ class LocalUpBody(RequestBody):
     gpus: bool = True
     name: Optional[str] = None
     port_start: Optional[int] = None
+    path: Optional[str] = None
 
 
 class LocalDownBody(RequestBody):

@@ -7122,7 +7122,10 @@ def local():
 def local_up(gpus: bool, name: Optional[str], port_start: Optional[int],
              async_call: bool):
     """Creates a local cluster."""
-    request_id = sdk.local_up(gpus, name, port_start)
+    # get current PATH environment variable from CLI side
+    # and pass it to server side
+    path = os.environ.get('PATH')
+    request_id = sdk.local_up(gpus, name, port_start, path)
     _async_call_or_wait(request_id, async_call, request_name='local up')
 
 
