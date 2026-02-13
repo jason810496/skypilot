@@ -1,6 +1,6 @@
 #!/bin/bash
 # Creates a local Kubernetes cluster using kind with optional GPU support
-# Usage: ./create_cluster.sh [name] [yaml_path] [--gpus]
+# Usage: ./create_cluster.sh [name] [yaml_path] [--gpus] [--fake-gpu-operator]
 set -e
 
 # Images
@@ -67,15 +67,10 @@ if $ENABLE_GPUS; then
     if ! grep -q 'accept-nvidia-visible-devices-as-volume-mounts = true' /etc/nvidia-container-runtime/config.toml; then
         error_msg+="\n* NVIDIA visible devices are not set as volume mounts in container runtime. To fix, run: \nsudo sed -i '/accept-nvidia-visible-devices-as-volume-mounts/c\\\\accept-nvidia-visible-devices-as-volume-mounts = true' /etc/nvidia-container-runtime/config.toml\n"
     fi
-
-    # Check if helm is installed
-    if ! helm version > /dev/null 2>&1; then
-        error_msg+="\n* helm is not installed. Please install helm and try again.\nInstallation instructions: https://helm.sh/docs/intro/install/\n"
-    fi
 fi
 
-if $FAKE_GPU_OPERATOR; then
-    # Check if helm is installed (needed for fake GPU operator)
+if $ENABLE_GPUS || $FAKE_GPU_OPERATOR; then
+    # Check if helm is installed (needed for GPU operator and fake GPU operator)
     if ! helm version > /dev/null 2>&1; then
         error_msg+="\n* helm is not installed. Please install helm and try again.\nInstallation instructions: https://helm.sh/docs/intro/install/\n"
     fi
