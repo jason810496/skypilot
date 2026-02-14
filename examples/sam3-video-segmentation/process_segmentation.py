@@ -162,12 +162,12 @@ def process_video(model,
         "original_fps": original_fps,
         "output_fps": output_fps,
         "objects_detected": len(obj_to_prompt),
-        "players_detected": total_players,
-        "balls_detected": total_balls,
-        "output_video": str(output_video_path),
+        'players_detected': total_players,
+        'balls_detected': total_balls,
+        'output_video': str(output_video_path),
     }
 
-    with open(video_output_dir / f"{video_name}_metadata.json", 'w') as f:
+    with open(video_output_dir / f"{video_name}_metadata.json", 'w', encoding='utf-8') as f:
         json.dump(result, f, indent=2)
 
     print(f"  Detected {total_players} player(s), {total_balls} ball(s)")
@@ -203,21 +203,21 @@ def main():
         f"Sample FPS: {args.sample_fps}, Max frames: {args.max_frames or 'unlimited'}"
     )
 
-    print("\nLoading SAM3 model...")
-    model = Sam3VideoModel.from_pretrained("facebook/sam3").to(
-        "cuda", dtype=torch.bfloat16).eval()
-    processor = Sam3VideoProcessor.from_pretrained("facebook/sam3")
-    print("Model loaded!")
+    print('\nLoading SAM3 model...')
+    model = Sam3VideoModel.from_pretrained('facebook/sam3').to(
+        'cuda', dtype=torch.bfloat16).eval()
+    processor = Sam3VideoProcessor.from_pretrained('facebook/sam3')
+    print('Model loaded!')
 
     try:
         result = process_video(model, processor, str(video_path), output_dir,
                                args.sample_fps, args.max_frames)
-        if "error" in result:
+        if 'error' in result:
             print(f"Error: {result['error']}")
             return 1
-        print("\nDone!")
+        print('\nDone!')
         return 0
-    except Exception as e:
+    except Exception as e:  # pylint: disable=broad-except
         print(f"Error: {e}")
         return 1
     finally:
@@ -225,5 +225,5 @@ def main():
         torch.cuda.empty_cache()
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     exit(main())
