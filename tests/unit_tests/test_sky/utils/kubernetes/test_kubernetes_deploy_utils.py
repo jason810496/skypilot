@@ -25,8 +25,9 @@ class TestMergeGivenPathWithShellPath:
     @mock.patch('subprocess.run')
     def test_no_given_path_uses_current_env(self, mock_run):
         """When given_path is None the current PATH should be kept."""
-        mock_run.return_value = subprocess.CompletedProcess(
-            args=[], returncode=0, stdout='/usr/bin\n')
+        mock_run.return_value = subprocess.CompletedProcess(args=[],
+                                                            returncode=0,
+                                                            stdout='/usr/bin\n')
         env = kubernetes_deploy_utils._merge_given_path_with_shell_path(None)
         assert '/usr/bin' in env['PATH'].split(os.pathsep)
         assert '/usr/local/bin' in env['PATH'].split(os.pathsep)
@@ -36,8 +37,9 @@ class TestMergeGivenPathWithShellPath:
     @mock.patch('subprocess.run')
     def test_given_path_prepended(self, mock_run):
         """given_path entries must appear before current PATH entries."""
-        mock_run.return_value = subprocess.CompletedProcess(
-            args=[], returncode=0, stdout='/usr/bin\n')
+        mock_run.return_value = subprocess.CompletedProcess(args=[],
+                                                            returncode=0,
+                                                            stdout='/usr/bin\n')
         given = '/my/custom/bin:/another/bin'
         env = kubernetes_deploy_utils._merge_given_path_with_shell_path(given)
         parts = env['PATH'].split(os.pathsep)
@@ -50,8 +52,9 @@ class TestMergeGivenPathWithShellPath:
     def test_given_path_deduplicates_current(self, mock_run):
         """Entries already in given_path should not be duplicated from
         the current PATH."""
-        mock_run.return_value = subprocess.CompletedProcess(
-            args=[], returncode=0, stdout='/usr/bin\n')
+        mock_run.return_value = subprocess.CompletedProcess(args=[],
+                                                            returncode=0,
+                                                            stdout='/usr/bin\n')
         given = '/usr/bin:/my/bin'
         env = kubernetes_deploy_utils._merge_given_path_with_shell_path(given)
         parts = env['PATH'].split(os.pathsep)
@@ -60,32 +63,29 @@ class TestMergeGivenPathWithShellPath:
         # /usr/local/bin from current env should be added
         assert '/usr/local/bin' in parts
 
-    @mock.patch.dict(os.environ, {'PATH': '/usr/bin'},
-                     clear=False)
+    @mock.patch.dict(os.environ, {'PATH': '/usr/bin'}, clear=False)
     @mock.patch('subprocess.run')
     def test_login_shell_entries_appended(self, mock_run):
         """New entries from the login shell PATH should be appended."""
         mock_run.return_value = subprocess.CompletedProcess(
-            args=[], returncode=0,
-            stdout='/usr/bin:/home/user/.local/bin\n')
+            args=[], returncode=0, stdout='/usr/bin:/home/user/.local/bin\n')
         env = kubernetes_deploy_utils._merge_given_path_with_shell_path(None)
         parts = env['PATH'].split(os.pathsep)
         assert '/home/user/.local/bin' in parts
 
-    @mock.patch.dict(os.environ, {'PATH': '/usr/bin'},
-                     clear=False)
+    @mock.patch.dict(os.environ, {'PATH': '/usr/bin'}, clear=False)
     @mock.patch('subprocess.run')
     def test_login_shell_entries_not_duplicated(self, mock_run):
         """Entries already present should not be added again from the login
         shell."""
-        mock_run.return_value = subprocess.CompletedProcess(
-            args=[], returncode=0, stdout='/usr/bin\n')
+        mock_run.return_value = subprocess.CompletedProcess(args=[],
+                                                            returncode=0,
+                                                            stdout='/usr/bin\n')
         env = kubernetes_deploy_utils._merge_given_path_with_shell_path(None)
         parts = env['PATH'].split(os.pathsep)
         assert parts.count('/usr/bin') == 1
 
-    @mock.patch.dict(os.environ, {'PATH': '/usr/bin'},
-                     clear=False)
+    @mock.patch.dict(os.environ, {'PATH': '/usr/bin'}, clear=False)
     @mock.patch('subprocess.run',
                 side_effect=subprocess.TimeoutExpired(cmd='bash', timeout=10))
     def test_login_shell_timeout_falls_back(self, mock_run):
@@ -94,8 +94,7 @@ class TestMergeGivenPathWithShellPath:
         env = kubernetes_deploy_utils._merge_given_path_with_shell_path(None)
         assert '/usr/bin' in env['PATH'].split(os.pathsep)
 
-    @mock.patch.dict(os.environ, {'PATH': '/usr/bin'},
-                     clear=False)
+    @mock.patch.dict(os.environ, {'PATH': '/usr/bin'}, clear=False)
     @mock.patch('subprocess.run', side_effect=FileNotFoundError('no shell'))
     def test_login_shell_not_found_falls_back(self, mock_run):
         """If the login shell executable is not found the error should be
@@ -103,8 +102,7 @@ class TestMergeGivenPathWithShellPath:
         env = kubernetes_deploy_utils._merge_given_path_with_shell_path(None)
         assert '/usr/bin' in env['PATH'].split(os.pathsep)
 
-    @mock.patch.dict(os.environ, {'PATH': '/usr/bin'},
-                     clear=False)
+    @mock.patch.dict(os.environ, {'PATH': '/usr/bin'}, clear=False)
     @mock.patch('subprocess.run',
                 side_effect=subprocess.CalledProcessError(1, 'bash'))
     def test_login_shell_nonzero_exit_falls_back(self, mock_run):
@@ -112,24 +110,28 @@ class TestMergeGivenPathWithShellPath:
         env = kubernetes_deploy_utils._merge_given_path_with_shell_path(None)
         assert '/usr/bin' in env['PATH'].split(os.pathsep)
 
-    @mock.patch.dict(os.environ, {'PATH': '/a:/b', 'SHELL': '/bin/zsh'},
+    @mock.patch.dict(os.environ, {
+        'PATH': '/a:/b',
+        'SHELL': '/bin/zsh'
+    },
                      clear=False)
     @mock.patch('subprocess.run')
     def test_uses_shell_env_variable(self, mock_run):
         """The function should use the SHELL env var for the login shell."""
-        mock_run.return_value = subprocess.CompletedProcess(
-            args=[], returncode=0, stdout='/a\n')
+        mock_run.return_value = subprocess.CompletedProcess(args=[],
+                                                            returncode=0,
+                                                            stdout='/a\n')
         kubernetes_deploy_utils._merge_given_path_with_shell_path(None)
         call_args = mock_run.call_args
         assert call_args[0][0][0] == '/bin/zsh'
 
-    @mock.patch.dict(os.environ, {'PATH': '/a:/b'},
-                     clear=False)
+    @mock.patch.dict(os.environ, {'PATH': '/a:/b'}, clear=False)
     @mock.patch('subprocess.run')
     def test_defaults_to_bash_when_no_shell_env(self, mock_run):
         """If SHELL is not set, /bin/bash should be the default."""
-        mock_run.return_value = subprocess.CompletedProcess(
-            args=[], returncode=0, stdout='/a\n')
+        mock_run.return_value = subprocess.CompletedProcess(args=[],
+                                                            returncode=0,
+                                                            stdout='/a\n')
         env_without_shell = os.environ.copy()
         env_without_shell.pop('SHELL', None)
         with mock.patch.dict(os.environ, env_without_shell, clear=True):
@@ -137,8 +139,7 @@ class TestMergeGivenPathWithShellPath:
         call_args = mock_run.call_args
         assert call_args[0][0][0] == '/bin/bash'
 
-    @mock.patch.dict(os.environ, {'PATH': ''},
-                     clear=False)
+    @mock.patch.dict(os.environ, {'PATH': ''}, clear=False)
     @mock.patch('subprocess.run')
     def test_empty_current_path(self, mock_run):
         """An empty current PATH should still produce a valid env dict."""
@@ -147,15 +148,13 @@ class TestMergeGivenPathWithShellPath:
         env = kubernetes_deploy_utils._merge_given_path_with_shell_path(None)
         assert '/login/bin' in env['PATH'].split(os.pathsep)
 
-    @mock.patch.dict(os.environ, {'PATH': '/usr/bin'},
-                     clear=False)
+    @mock.patch.dict(os.environ, {'PATH': '/usr/bin'}, clear=False)
     @mock.patch('subprocess.run')
     def test_given_path_with_login_shell(self, mock_run):
         """given_path, current PATH, and login shell entries should all
         be merged with correct priority order."""
         mock_run.return_value = subprocess.CompletedProcess(
-            args=[], returncode=0,
-            stdout='/usr/bin:/login/only\n')
+            args=[], returncode=0, stdout='/usr/bin:/login/only\n')
         given = '/given/bin'
         env = kubernetes_deploy_utils._merge_given_path_with_shell_path(given)
         parts = env['PATH'].split(os.pathsep)
@@ -163,24 +162,28 @@ class TestMergeGivenPathWithShellPath:
         assert parts.index('/given/bin') < parts.index('/usr/bin')
         assert '/login/only' in parts
 
-    @mock.patch.dict(os.environ, {'PATH': '/usr/bin', 'HOME': '/home/test'},
+    @mock.patch.dict(os.environ, {
+        'PATH': '/usr/bin',
+        'HOME': '/home/test'
+    },
                      clear=False)
     @mock.patch('subprocess.run')
     def test_returns_full_env_copy(self, mock_run):
         """The returned dict should contain all env vars, not just PATH."""
-        mock_run.return_value = subprocess.CompletedProcess(
-            args=[], returncode=0, stdout='/usr/bin\n')
+        mock_run.return_value = subprocess.CompletedProcess(args=[],
+                                                            returncode=0,
+                                                            stdout='/usr/bin\n')
         env = kubernetes_deploy_utils._merge_given_path_with_shell_path(None)
         assert env.get('HOME') == '/home/test'
 
-    @mock.patch.dict(os.environ, {'PATH': '/usr/bin'},
-                     clear=False)
+    @mock.patch.dict(os.environ, {'PATH': '/usr/bin'}, clear=False)
     @mock.patch('subprocess.run')
     def test_empty_given_path_string(self, mock_run):
         """An empty string given_path should be treated as falsy (no
         given_path)."""
-        mock_run.return_value = subprocess.CompletedProcess(
-            args=[], returncode=0, stdout='/usr/bin\n')
+        mock_run.return_value = subprocess.CompletedProcess(args=[],
+                                                            returncode=0,
+                                                            stdout='/usr/bin\n')
         env = kubernetes_deploy_utils._merge_given_path_with_shell_path('')
         # '' is falsy, so should behave like None
         assert '/usr/bin' in env['PATH'].split(os.pathsep)
@@ -216,8 +219,7 @@ class TestGenerateKindConfig:
         assert 'nvidia-container-devices' in config
 
     def test_no_gpu_support(self):
-        config = kubernetes_deploy_utils.generate_kind_config(30000,
-                                                              gpus=False)
+        config = kubernetes_deploy_utils.generate_kind_config(30000, gpus=False)
         assert 'nvidia-container-devices' not in config
 
     def test_multi_node(self):
@@ -276,8 +278,7 @@ class TestGetPortRange:
     def test_non_default_cluster_random_port(self):
         """When port_start is None for a non-default cluster, a random
         port in the 301xx-399xx range should be chosen."""
-        start, end = kubernetes_deploy_utils._get_port_range(
-            'my-cluster', None)
+        start, end = kubernetes_deploy_utils._get_port_range('my-cluster', None)
         assert start % 100 == 0
         assert 30100 <= start <= 39900
         assert end == start + kubernetes_deploy_utils.LOCAL_CLUSTER_PORT_RANGE - 1
@@ -296,12 +297,12 @@ class TestLocalUpBody:
 
     def test_path_field_set(self):
         from sky.server.requests import payloads
-        body = payloads.LocalUpBody(gpus=True,
-                                    path='/usr/bin:/custom/bin')
+        body = payloads.LocalUpBody(gpus=True, path='/usr/bin:/custom/bin')
         assert body.path == '/usr/bin:/custom/bin'
 
     def test_path_field_serialization(self):
         import json
+
         from sky.server.requests import payloads
         body = payloads.LocalUpBody(gpus=True,
                                     name='test',

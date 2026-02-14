@@ -79,14 +79,12 @@ def _merge_given_path_with_shell_path(given_path: Optional[str] = None) -> dict:
                                 text=True,
                                 timeout=10,
                                 check=True)
-        if result.returncode == 0:
-            login_path = result.stdout.strip()
-            merged_set = set(merged)
-            extra_login = [
-                p for p in login_path.split(os.pathsep)
-                if p and p not in merged_set
-            ]
-            merged.extend(extra_login)
+        login_path = result.stdout.strip()
+        merged_set = set(merged)
+        extra_login = [
+            p for p in login_path.split(os.pathsep) if p and p not in merged_set
+        ]
+        merged.extend(extra_login)
 
     env['PATH'] = os.pathsep.join(merged)
     return env
