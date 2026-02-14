@@ -731,6 +731,7 @@ class LocalUpBody(RequestBody):
 class LocalDownBody(RequestBody):
     """The request body for the local down endpoint."""
     name: Optional[str] = None
+    path: Optional[str] = None
 
 
 class SSHUpBody(RequestBody):

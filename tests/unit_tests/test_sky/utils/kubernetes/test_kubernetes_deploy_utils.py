@@ -313,8 +313,9 @@ class TestLocalUpBody:
         assert data['name'] == 'test'
         assert data['port_start'] == 40000
 
-    def test_local_down_body_has_no_path(self):
+    def test_local_down_body_has_path(self):
         from sky.server.requests import payloads
-        body = payloads.LocalDownBody(name='test')
-        assert not hasattr(body, 'path') or \
-            'path' not in body.model_fields
+        body = payloads.LocalDownBody(name='test', path='/usr/bin')
+        assert hasattr(body, 'path') and \
+            'path' in body.model_fields
+        assert body.path == '/usr/bin'

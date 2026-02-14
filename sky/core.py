@@ -1699,9 +1699,10 @@ def local_up(gpus: bool,
     kubernetes_deploy_utils.deploy_local_cluster(name, port_start, gpus, path)
 
 
-def local_down(name: Optional[str] = None) -> None:
+def local_down(name: Optional[str] = None,
+               path: Optional[str] = None) -> None:
     """Tears down the Kubernetes cluster started by local_up."""
-    kubernetes_deploy_utils.teardown_local_cluster(name)
+    kubernetes_deploy_utils.teardown_local_cluster(name, path)
 
 
 def get_all_contexts() -> List[str]:
